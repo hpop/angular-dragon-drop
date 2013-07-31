@@ -39,6 +39,7 @@ angular.module('btford.dragon-drop', []).
     var dragValue,
       dragKey,
       dragOrigin,
+      originHTML,
       dragDuplicate = false,
       floaty,
       offsetX,
@@ -149,18 +150,21 @@ angular.module('btford.dragon-drop', []).
         var match = expression.match(/^\s*(.+)\s+in\s+(.*?)\s*$/);
 
         var targetList = targetScope.$eval(match[2]);
-        targetScope.$apply(function () {
-          add(targetList, dragValue, dragKey);
-        });
-      } else if (!dragDuplicate) {
-        // no dropArea here
-        // put item back to origin
-        $rootScope.$apply(function () {
-          add(dragOrigin, dragValue, dragKey);
-        });
-      }
+        if (targetList.indexOf(dragValue) <= -1) {
+          targetScope.$apply(function () {
+            if (!dragDuplicate) {
+              remove(dragOrigin, dragKey || dragOrigin.indexOf(dragValue));
+            }  
+            add(targetList, dragValue, dragKey);
+          });
+        }
+      } 
 
-      dragValue = dragOrigin = null;
+      if (originHTML) {
+        originHTML.removeClass('btf-is-dragged');  
+      }
+      
+      dragValue = dragOrigin = originHTML = null;
       killFloaty();
     });
 
@@ -250,6 +254,11 @@ angular.module('btford.dragon-drop', []).
               }
             }
 
+            // find HTML base element
+            while (originElement.parent().scope()[valueIdentifier] !== undefined) {
+              originElement = originElement.parent();
+            }
+
             dragValue = originScope[valueIdentifier];
             dragKey = originScope[keyIdentifier];
             if (!dragValue) {
@@ -257,14 +266,15 @@ angular.module('btford.dragon-drop', []).
             }
 
             // get offset inside element to drag
-            var offset = getElementOffset(ev.target);
+            var offset = getElementOffset(originElement[0]);
 
             dragOrigin = scope.$eval(rhs);
             if (duplicate) {
               dragValue = angular.copy(dragValue);
             } else {
               scope.$apply(function () {
-                remove(dragOrigin, dragKey || dragOrigin.indexOf(dragValue));
+                originHTML = originElement;
+                originElement.addClass('btf-is-dragged');
               });
             }
             dragDuplicate = duplicate;
