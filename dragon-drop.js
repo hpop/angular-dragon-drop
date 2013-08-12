@@ -7,7 +7,7 @@
 'use strict';
 
 angular.module('btford.dragon-drop', []).
-  directive('btfDragon', function ($window, $document, $compile, $rootScope) {
+  directive('btfDragon', function ($window, $document, $compile) {
     /*
              ^                       ^
              |\   \        /        /|
@@ -285,6 +285,7 @@ angular.module('btford.dragon-drop', []).
 
             spawnFloaty();
             drag(ev);
+            return false; // prevents event from bubbling further. Without, intiated text selection on IE9 / Opera 12 while dragging.
           });
         };
       }
