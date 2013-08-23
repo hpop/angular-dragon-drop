@@ -7,7 +7,7 @@
 'use strict';
 
 angular.module('btford.dragon-drop', []).
-  directive('btfDragon', function ($document, $compile, $rootScope) {
+  directive('btfDragon', function ($window, $document, $compile) {
     /*
              ^                       ^
              |\   \        /        /|
@@ -106,8 +106,9 @@ angular.module('btford.dragon-drop', []).
       var box = elt.getBoundingClientRect();
       var body = $document[0].body;
 
-      var xPosition = box.left + body.scrollLeft;
-      var yPosition = box.top + body.scrollTop;
+      // $window.page(X|Y)Offset is for IE's:
+      var xPosition = box.left + (body.scrollLeft != 0 ? body.scrollLeft : $window.pageXOffset);
+      var yPosition = box.top  + (body.scrollTop  != 0 ? body.scrollTop  : $window.pageYOffset);
 
       return {
         left: xPosition,
@@ -284,6 +285,7 @@ angular.module('btford.dragon-drop', []).
 
             spawnFloaty();
             drag(ev);
+            return false; // prevents event from bubbling further. Without, intiated text selection on IE9 / Opera 12 while dragging.
           });
         };
       }
