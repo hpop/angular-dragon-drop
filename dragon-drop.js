@@ -138,7 +138,7 @@ angular.module('btford.dragon-drop', []).
       var accepts = function () {
         return dropArea.attr('btf-dragon') &&
         ( !dropArea.attr('btf-dragon-accepts') ||
-          dropArea.scope().$eval(dropArea.attr('btf-dragon-accepts'))(dragValue) );
+          dropArea.scope().$eval(dropArea.attr('btf-dragon-accepts'))(dragValue, dropArea.scope()) );
       };
 
       while (dropArea.length > 0 && !accepts()) {
